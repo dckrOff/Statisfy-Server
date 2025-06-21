@@ -84,6 +84,30 @@ public class UserPreferenceServiceImpl implements UserPreferenceService {
         userPreferenceRepository.deleteByUser(user);
     }
     
+    @Override
+    public UserPreferenceResponse getUserPreferences(User user) {
+        log.info("Getting preferences for user: {}", user.getUsername());
+        
+        UserPreference userPreference = userPreferenceRepository.findByUser(user)
+                .orElseThrow(() -> new ResourceNotFoundException("Preferences not found for user: " + user.getUsername()));
+        
+        return mapToResponse(userPreference);
+    }
+    
+    @Override
+    public UserPreferenceResponse getCurrentUserPreferences() {
+        // This method would typically use SecurityContextHolder to get the current user
+        // For now, throw an exception as it's not implemented yet
+        throw new UnsupportedOperationException("Method not implemented yet");
+    }
+    
+    @Override
+    public UserPreferenceResponse updateUserPreferences(UserPreferenceRequest request) {
+        // This method would typically use SecurityContextHolder to get the current user
+        // For now, throw an exception as it's not implemented yet
+        throw new UnsupportedOperationException("Method not implemented yet");
+    }
+    
     private UserPreferenceResponse mapToResponse(UserPreference preference) {
         return UserPreferenceResponse.builder()
                 .id(preference.getId())

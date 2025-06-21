@@ -1,5 +1,6 @@
 package uz.dckroff.statisfy.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -8,8 +9,6 @@ import uz.dckroff.statisfy.dto.user.UserPreferenceRequest;
 import uz.dckroff.statisfy.dto.user.UserPreferenceResponse;
 import uz.dckroff.statisfy.model.User;
 import uz.dckroff.statisfy.service.UserPreferenceService;
-
-import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/api/user/preferences")

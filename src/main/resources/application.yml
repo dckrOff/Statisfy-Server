@@ -33,7 +33,7 @@ jwt:
 
 # NewsAPI configuration
 news-api:
-  key: ${NEWS_API_KEY:your_news_api_key_here}
+  key: ${NEWS_API_KEY:8366fc3ce12040338505bd85c80a6c2f}
   base-url: https://newsapi.org/v2
   scheduler:
     enabled: true
@@ -42,7 +42,7 @@ news-api:
 # OpenAI API configuration
 openai:
   api:
-    key: ${OPENAI_API_KEY:your_openai_api_key_here}
+    key: ${OPENAI_API_KEY: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}
     model: gpt-3.5-turbo
     timeout: 60 # seconds
 

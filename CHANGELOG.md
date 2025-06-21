@@ -1,5 +1,19 @@
 # Statisfy Server Changelog
 
+## [0.4.1] - 2023-12-05
+### Added
+- Completed implementation of UserPreferenceService
+- Added missing methods in UserPreferenceServiceImpl
+- Created DTOs for AI requests and responses
+- Added validation for AI request parameters
+- Implemented proper error handling in AI services
+
+### Fixed
+- Updated deprecated RestTemplate methods to use modern API
+- Fixed build issues and compilation errors
+- Corrected validation annotations in DTOs
+- Ensured compatibility with Spring Boot 3.x
+
 ## [0.4.0] - 2023-11-25
 ### Added
 - Basic AI integration with OpenAI API
