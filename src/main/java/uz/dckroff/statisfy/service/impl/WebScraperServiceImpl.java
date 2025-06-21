@@ -15,6 +15,9 @@ import uz.dckroff.statisfy.service.WebScraperService;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
@@ -65,7 +68,26 @@ public class WebScraperServiceImpl implements WebScraperService {
                                     .get();
                             
                             Element summaryElement = articleDoc.selectFirst("div.single-content p");
+                            Element dateElement = articleDoc.selectFirst(".single-header__date");
                             String summary = summaryElement != null ? summaryElement.text() : "No summary available";
+                            
+                            LocalDateTime publishDate = LocalDateTime.now();
+                            if (dateElement != null) {
+                                try {
+                                    // Try to parse the date from the website
+                                    // Example format: "12:34 / 01.06.2023"
+                                    String dateStr = dateElement.text().trim();
+                                    if (dateStr.contains("/")) {
+                                        dateStr = dateStr.split("/")[1].trim();
+                                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+                                        publishDate = LocalDateTime.of(
+                                                java.time.LocalDate.parse(dateStr, formatter), 
+                                                java.time.LocalTime.now());
+                                    }
+                                } catch (DateTimeParseException e) {
+                                    log.warn("Could not parse date from kun.uz: {}", dateElement.text(), e);
+                                }
+                            }
                             
                             // Create and save news
                             News news = News.builder()
@@ -73,7 +95,7 @@ public class WebScraperServiceImpl implements WebScraperService {
                                     .summary(summary)
                                     .url(url)
                                     .source("kun.uz")
-                                    .publishedAt(LocalDateTime.now())
+                                    .publishedAt(publishDate)
                                     .category(category)
                                     .isRelevant(true)
                                     .build();
@@ -127,13 +149,28 @@ public class WebScraperServiceImpl implements WebScraperService {
                             Element summaryElement = element.selectFirst("p.ntext");
                             String summary = summaryElement != null ? summaryElement.text() : "No summary available";
                             
+                            // Extract date if available
+                            Element dateElement = element.selectFirst("p.ndate");
+                            LocalDateTime publishDate = LocalDateTime.now();
+                            if (dateElement != null) {
+                                try {
+                                    // Try to parse the date from the website
+                                    // Example format: "15 июня 2023, 14:30"
+                                    String dateStr = dateElement.text().trim();
+                                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMMM yyyy, HH:mm", new Locale("ru"));
+                                    publishDate = LocalDateTime.parse(dateStr, formatter);
+                                } catch (DateTimeParseException e) {
+                                    log.warn("Could not parse date from gazeta.uz: {}", dateElement.text(), e);
+                                }
+                            }
+                            
                             // Create and save news
                             News news = News.builder()
                                     .title(title)
                                     .summary(summary)
                                     .url(url)
                                     .source("gazeta.uz")
-                                    .publishedAt(LocalDateTime.now())
+                                    .publishedAt(publishDate)
                                     .category(category)
                                     .isRelevant(true)
                                     .build();
