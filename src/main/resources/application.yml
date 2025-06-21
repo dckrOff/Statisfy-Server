@@ -29,6 +29,11 @@ jwt:
   secret: ${JWT_SECRET:WW91clNlY3JldEtleUhlcmVNYWtlU3VyZUl0SXNBdExlYXN0MzJDaGFyYWN0ZXJzTG9uZw==}
   expiration: 86400000 # 24 hours
 
+# NewsAPI configuration
+newsapi:
+  key: ${NEWSAPI_KEY:your_api_key_here}
+  baseurl: https://newsapi.org/v2
+
 logging:
   level:
     uz.dckroff.statisfy: DEBUG
