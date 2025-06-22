@@ -1,6 +1,19 @@
 # Statisfy Server Changelog
 
-## [0.5.0] - 2023-12-10
+## [0.6.0] 
+### Added
+- Analytics system for tracking user activity
+- UserActivity model and repository
+- AnalyticsService for collecting and querying analytics data
+- API endpoints for analytics data
+- Spring Boot Actuator integration for monitoring
+- Custom metrics for application performance
+- Interceptors for automatic activity logging
+- Dashboard statistics for administrators
+- Structured logging with log rotation
+- Custom health indicators for external services
+
+## [0.5.0] 
 ### Added
 - Push notification system with Firebase Cloud Messaging
 - Device token registration and management
@@ -11,7 +24,7 @@
 - API endpoints for notification management
 - Database migrations for notification tables
 
-## [0.4.1] - 2023-12-05
+## [0.4.1]
 ### Added
 - Completed implementation of UserPreferenceService
 - Added missing methods in UserPreferenceServiceImpl
@@ -25,7 +38,7 @@
 - Corrected validation annotations in DTOs
 - Ensured compatibility with Spring Boot 3.x
 
-## [0.4.0] - 2023-11-25
+## [0.4.0]
 ### Added
 - Basic AI integration with OpenAI API
 - AIService for generating facts and analyzing news relevance
@@ -37,7 +50,7 @@
 - Database migration for user preferences tables
 - OpenAI configuration in application.yml
 
-## [0.3.0] - 2023-11-10
+## [0.3.0]
 ### Added
 - News system implementation
 - News model, repository, service and controller
@@ -48,7 +61,7 @@
 - Caching for popular requests
 - Endpoints for retrieving news
 
-## [0.2.0] - 2023-10-25
+## [0.2.0]
 ### Added
 - Content system for facts and statistics
 - Category, Fact, and Statistic models
@@ -58,7 +71,7 @@
 - Database migrations for content tables
 - Pagination and filtering for content endpoints
 
-## [0.1.0] - 2023-10-10
+## [0.1.0]
 ### Added
 - Initial Spring Boot project setup
 - PostgreSQL database configuration
