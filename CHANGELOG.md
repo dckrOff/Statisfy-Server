@@ -1,5 +1,16 @@
 # Statisfy Server Changelog
 
+## [0.5.0] - 2023-12-10
+### Added
+- Push notification system with Firebase Cloud Messaging
+- Device token registration and management
+- Notification settings for users
+- Daily fact notifications
+- Weekly news summary notifications
+- Scheduled tasks for automated notifications
+- API endpoints for notification management
+- Database migrations for notification tables
+
 ## [0.4.1] - 2023-12-05
 ### Added
 - Completed implementation of UserPreferenceService
