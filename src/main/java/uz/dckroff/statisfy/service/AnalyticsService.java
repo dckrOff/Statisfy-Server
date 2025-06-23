@@ -1,5 +1,6 @@
 package uz.dckroff.statisfy.service;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import uz.dckroff.statisfy.dto.analytics.DashboardStatsDTO;
@@ -7,7 +8,6 @@ import uz.dckroff.statisfy.dto.analytics.UserActivityDTO;
 import uz.dckroff.statisfy.model.User;
 import uz.dckroff.statisfy.model.UserActivity;
 
-import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.List;
 

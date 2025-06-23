@@ -26,26 +26,28 @@ public class FirebaseConfig {
     @Bean
     public FirebaseMessaging firebaseMessaging() throws IOException {
         if (!firebaseEnabled) {
-            log.warn("Firebase is disabled. Using mock implementation.");
+            log.warn("Firebase is disabled. Skipping FirebaseMessaging bean.");
             return null;
         }
 
-        try {
-            InputStream serviceAccount = new ClassPathResource(firebaseConfigFile).getInputStream();
-            
-            FirebaseOptions options = FirebaseOptions.builder()
-                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                    .build();
+        InputStream serviceAccount = new ClassPathResource(firebaseConfigFile).getInputStream();
 
-            if (FirebaseApp.getApps().isEmpty()) {
-                FirebaseApp app = FirebaseApp.initializeApp(options, "statisfy");
-                log.info("Firebase application has been initialized with name: {}", app.getName());
-            }
+        FirebaseOptions options = FirebaseOptions.builder()
+                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                .build();
 
-            return FirebaseMessaging.getInstance();
-        } catch (IOException e) {
-            log.error("Error initializing Firebase: {}", e.getMessage());
-            throw e;
+        FirebaseApp app;
+        if (FirebaseApp.getApps().isEmpty()) {
+            app = FirebaseApp.initializeApp(options, "statisfy"); // создаёшь с ИМЕНЕМ
+            log.info("Firebase application initialized: {}", app.getName());
+        } else {
+            // получаем по имени, чтобы не получить исключение
+            app = FirebaseApp.getInstance("statisfy");
+            log.info("Firebase application already exists: {}", app.getName());
         }
+
+        return FirebaseMessaging.getInstance(app); // ← ВАЖНО: передаём именно этот app
     }
-} 
+
+
+}

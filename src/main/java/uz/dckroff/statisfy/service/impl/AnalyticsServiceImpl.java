@@ -1,5 +1,6 @@
 package uz.dckroff.statisfy.service.impl;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -13,7 +14,6 @@ import uz.dckroff.statisfy.model.UserActivity;
 import uz.dckroff.statisfy.repository.*;
 import uz.dckroff.statisfy.service.AnalyticsService;
 
-import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;

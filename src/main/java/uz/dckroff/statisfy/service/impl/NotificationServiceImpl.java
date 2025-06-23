@@ -4,6 +4,7 @@ import com.google.firebase.messaging.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uz.dckroff.statisfy.dto.fact.FactResponse;
@@ -339,7 +340,7 @@ public class NotificationServiceImpl implements NotificationService {
                 User user = settings.getUser();
                 
                 // Get relevant news for user (simplified, in real implementation would use user preferences)
-                var relevantNews = newsService.getRelevantNews(0, 5).getContent();
+                var relevantNews = newsService.getRelevantNews(PageRequest.of(0, 5)).getContent();
                 String newsCount = String.valueOf(relevantNews.size());
                 
                 // Prepare notification data

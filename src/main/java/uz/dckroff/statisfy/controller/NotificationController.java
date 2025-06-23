@@ -1,5 +1,6 @@
 package uz.dckroff.statisfy.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -12,7 +13,6 @@ import uz.dckroff.statisfy.dto.notification.NotificationSettingsResponse;
 import uz.dckroff.statisfy.model.User;
 import uz.dckroff.statisfy.service.NotificationService;
 
-import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
 

@@ -1,7 +1,7 @@
 server:
   port: 8080
-  servlet:
-    context-path: /api
+#  servlet:
+#    context-path: /api
 
 spring:
   application:
@@ -10,7 +10,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/statisfy
     username: postgres
-    password: postgres
+    password: 1234
     driver-class-name: org.postgresql.Driver
   
   jpa:
@@ -42,9 +42,6 @@ management:
     prometheus:
       enabled: true
   metrics:
-    export:
-      prometheus:
-        enabled: true
     distribution:
       percentiles-histogram:
         http.server.requests: true
@@ -52,9 +49,13 @@ management:
         http.server.requests: 50ms,100ms,200ms,500ms,1s
     tags:
       application: statisfy-server
+  prometheus:
+    metrics:
+      export:
+        enabled: true
 
 jwt:
-  secret: ${JWT_SECRET:your_jwt_secret_key_here_which_should_be_at_least_32_characters_long}
+  secret: "F93sdf9j3r023r90wefjwef9w023rwejfw09"
   expiration: 86400000 # 24 hours
 
 # NewsAPI configuration
@@ -62,7 +63,7 @@ news-api:
   key: ${NEWS_API_KEY:your_news_api_key_here}
   base-url: https://newsapi.org/v2
   scheduler:
-    enabled: true
+    enabled: false
     cron: "0 */30 * * * *" # Every 30 minutes
 
 # OpenAI API configuration
@@ -73,11 +74,11 @@ openai:
     timeout: 60 # seconds
 
 firebase:
-  enabled: ${FIREBASE_ENABLED:false}
+  enabled: ${FIREBASE_ENABLED:true}
   config-file: ${FIREBASE_CONFIG_FILE:firebase-service-account.json}
 
 scraping:
-  enabled: true
+  enabled: false
   scheduler:
     cron: "0 0 */3 * * *" # Every 3 hours
   sites:

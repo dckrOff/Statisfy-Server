@@ -1,8 +1,12 @@
 package uz.dckroff.statisfy.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -12,12 +16,24 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import uz.dckroff.statisfy.security.JwtAuthenticationFilter;
+
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
 @EnableWebSecurity
@@ -30,6 +46,14 @@ public class SecurityConfig {
     
     private static final String[] WHITE_LIST_URL = {
             "/api/auth/**",
+            "/api/facts",
+            "/api/facts/**",
+            "/api/statistics",
+            "/api/statistics/**",
+            "/api/categories",
+            "/api/categories/**",
+            "/api/news",
+            "/api/news/**",
             "/v2/api-docs",
             "/v3/api-docs",
             "/v3/api-docs/**",
@@ -54,9 +78,49 @@ public class SecurityConfig {
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(exceptions -> exceptions
+                        .accessDeniedHandler(accessDeniedHandler())
+                        .authenticationEntryPoint(authenticationEntryPoint())
+                );
 
         return http.build();
+    }
+    
+    @Bean
+    public AccessDeniedHandler accessDeniedHandler() {
+        return (request, response, ex) -> {
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            
+            Map<String, Object> body = new HashMap<>();
+            body.put("status", HttpServletResponse.SC_FORBIDDEN);
+            body.put("error", "Доступ запрещен");
+            body.put("message", "У вас недостаточно прав для доступа к этому ресурсу");
+            body.put("path", request.getServletPath());
+            body.put("timestamp", LocalDateTime.now().toString());
+            
+            final ObjectMapper mapper = new ObjectMapper();
+            mapper.writeValue(response.getOutputStream(), body);
+        };
+    }
+    
+    @Bean
+    public AuthenticationEntryPoint authenticationEntryPoint() {
+        return (request, response, ex) -> {
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            
+            Map<String, Object> body = new HashMap<>();
+            body.put("status", HttpServletResponse.SC_UNAUTHORIZED);
+            body.put("error", "Не авторизован");
+            body.put("message", "Для доступа к этому ресурсу требуется полная аутентификация");
+            body.put("path", request.getServletPath());
+            body.put("timestamp", LocalDateTime.now().toString());
+            
+            final ObjectMapper mapper = new ObjectMapper();
+            mapper.writeValue(response.getOutputStream(), body);
+        };
     }
 
     @Bean

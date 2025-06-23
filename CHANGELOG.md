@@ -1,5 +1,20 @@
 # Statisfy Server Changelog
 
+## [0.7.0] 
+### Added
+- Подробная документация API (api-documentation.md)
+- Улучшенная обработка ошибок с информативными сообщениями
+- Обработчики для AccessDeniedException и AuthenticationException
+- Подробные сообщения об ошибках для JWT авторизации
+- AccessDeniedHandler и AuthenticationEntryPoint в SecurityConfig
+- Расширен белый список URL для публичного доступа
+- Добавлен путь к ресурсу в сообщения об ошибках
+
+### Changed
+- Формат ответов об ошибках теперь содержит timestamp, status, error, message и path
+- Улучшены сообщения об ошибках на русском языке
+- Изменена структура GlobalExceptionHandler для большей информативности
+
 ## [0.6.0] 
 ### Added
 - Analytics system for tracking user activity
