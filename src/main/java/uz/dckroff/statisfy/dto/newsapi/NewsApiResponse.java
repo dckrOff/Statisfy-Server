@@ -1,5 +1,6 @@
 package uz.dckroff.statisfy.dto.newsapi;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,7 +26,8 @@ public class NewsApiResponse {
         private String description;
         private String url;
         private String urlToImage;
-        
+
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
         @JsonProperty("publishedAt")
         private String publishedAt;
         

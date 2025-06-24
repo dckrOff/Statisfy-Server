@@ -90,7 +90,7 @@ public class NewsServiceImpl implements NewsService {
                 String localCategory = entry.getValue();
                 
                 // Fetch news from API
-                NewsApiResponse response = newsApiService.fetchTopHeadlines(apiCategory, "us");
+                NewsApiResponse response = newsApiService.fetchTopHeadlines(apiCategory, "ru");
                 
                 if (response != null && "ok".equalsIgnoreCase(response.getStatus())) {
                     // Find or create category
@@ -146,7 +146,8 @@ public class NewsServiceImpl implements NewsService {
                 .summary(news.getSummary())
                 .url(news.getUrl())
                 .source(news.getSource())
-                .publishedAt(news.getPublishedAt())
+                .publishedAt(news.getPublishedAt() != null ? 
+                    news.getPublishedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null)
                 .category(mapToCategoryResponse(news.getCategory()))
                 .isRelevant(news.isRelevant())
                 .build();

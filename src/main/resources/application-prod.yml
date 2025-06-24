@@ -15,7 +15,7 @@ spring:
     show-sql: false
     properties:
       hibernate:
-        generate_statistics: false
+        generate_statistics: true
         jdbc.batch_size: 50
         order_inserts: true
         order_updates: true
@@ -60,7 +60,7 @@ spring:
 # Отключаем расписания для сервисов, требующих API ключей, пока они не будут предоставлены
 news-api:
   scheduler:
-    enabled: ${NEWS_API_SCHEDULER_ENABLED:false}
+    enabled: ${NEWS_API_SCHEDULER_ENABLED:true}
 
 scraping:
   enabled: ${SCRAPING_ENABLED:true}

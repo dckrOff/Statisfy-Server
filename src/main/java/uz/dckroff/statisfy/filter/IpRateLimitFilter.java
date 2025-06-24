@@ -18,6 +18,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -32,6 +33,7 @@ public class IpRateLimitFilter extends OncePerRequestFilter {
     private final MeterRegistry meterRegistry;
     
     private Counter rateLimitCounter;
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
     
     // Конфигурируемые параметры (можно вынести в application.yml)
     private static final int DEFAULT_LIMIT = 60;  // Запросов в минуту
@@ -85,7 +87,7 @@ public class IpRateLimitFilter extends OncePerRequestFilter {
             response.addHeader("Retry-After", String.valueOf(retryAfter));
             
             Map<String, Object> responseBody = new HashMap<>();
-            responseBody.put("timestamp", LocalDateTime.now().toString());
+            responseBody.put("timestamp", LocalDateTime.now().format(FORMATTER));
             responseBody.put("status", HttpStatus.TOO_MANY_REQUESTS.value());
             responseBody.put("error", "Too Many Requests");
             responseBody.put("message", "Вы превысили лимит запросов. Пожалуйста, повторите запрос позже.");

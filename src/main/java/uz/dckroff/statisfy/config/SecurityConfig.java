@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
@@ -34,6 +35,7 @@ import uz.dckroff.statisfy.filter.IpRateLimitFilter;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,6 +45,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    @Autowired
+    private ObjectMapper objectMapper;
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final UserDetailsService userDetailsService;
     private final IpRateLimitFilter ipRateLimitFilter;
@@ -69,6 +73,8 @@ public class SecurityConfig {
             "/swagger-ui.html"
     };
 
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -90,25 +96,24 @@ public class SecurityConfig {
 
         return http.build();
     }
-    
+
     @Bean
     public AccessDeniedHandler accessDeniedHandler() {
         return (request, response, ex) -> {
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            
+
             Map<String, Object> body = new HashMap<>();
             body.put("status", HttpServletResponse.SC_FORBIDDEN);
             body.put("error", "Доступ запрещен");
             body.put("message", "У вас недостаточно прав для доступа к этому ресурсу");
             body.put("path", request.getServletPath());
-            body.put("timestamp", LocalDateTime.now().toString());
-            
-            final ObjectMapper mapper = new ObjectMapper();
-            mapper.writeValue(response.getOutputStream(), body);
+            body.put("timestamp", LocalDateTime.now().format(FORMATTER));
+
+            objectMapper.writeValue(response.getOutputStream(), body);
         };
     }
-    
+
     @Bean
     public AuthenticationEntryPoint authenticationEntryPoint() {
         return (request, response, ex) -> {
@@ -120,10 +125,9 @@ public class SecurityConfig {
             body.put("error", "Не авторизован");
             body.put("message", "Для доступа к этому ресурсу требуется полная аутентификация");
             body.put("path", request.getServletPath());
-            body.put("timestamp", LocalDateTime.now().toString());
+            body.put("timestamp", LocalDateTime.now().format(FORMATTER));
             
-            final ObjectMapper mapper = new ObjectMapper();
-            mapper.writeValue(response.getOutputStream(), body);
+            objectMapper.writeValue(response.getOutputStream(), body);
         };
     }
 

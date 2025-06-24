@@ -1,5 +1,6 @@
 package uz.dckroff.statisfy.exception;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -13,18 +14,21 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException ex, WebRequest request) {
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.NOT_FOUND.value(),
                 ex.getMessage(),
-                LocalDateTime.now(),
+                LocalDateTime.now().format(FORMATTER),
                 request.getDescription(false)
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
@@ -35,7 +39,7 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.CONFLICT.value(),
                 ex.getMessage(),
-                LocalDateTime.now(),
+                LocalDateTime.now().format(FORMATTER),
                 request.getDescription(false)
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
@@ -46,7 +50,7 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.CONFLICT.value(),
                 ex.getMessage(),
-                LocalDateTime.now(),
+                LocalDateTime.now().format(FORMATTER),
                 request.getDescription(false)
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
@@ -57,7 +61,7 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.UNAUTHORIZED.value(),
                 "Неверное имя пользователя или пароль",
-                LocalDateTime.now(),
+                LocalDateTime.now().format(FORMATTER),
                 request.getDescription(false)
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
@@ -68,7 +72,7 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.FORBIDDEN.value(),
                 "Доступ запрещен: у вас недостаточно прав для выполнения этой операции",
-                LocalDateTime.now(),
+                LocalDateTime.now().format(FORMATTER),
                 request.getDescription(false)
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
@@ -84,7 +88,7 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.UNAUTHORIZED.value(),
                 message,
-                LocalDateTime.now(),
+                LocalDateTime.now().format(FORMATTER),
                 request.getDescription(false)
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
@@ -102,7 +106,7 @@ public class GlobalExceptionHandler {
         ValidationErrorResponse validationErrorResponse = new ValidationErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
                 "Ошибка валидации данных",
-                LocalDateTime.now(),
+                LocalDateTime.now().format(FORMATTER),
                 request.getDescription(false),
                 errors
         );
@@ -115,7 +119,7 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 "Произошла непредвиденная ошибка: " + ex.getMessage(),
-                LocalDateTime.now(),
+                LocalDateTime.now().format(FORMATTER),
                 request.getDescription(false)
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -124,10 +128,10 @@ public class GlobalExceptionHandler {
     public static class ErrorResponse {
         private int status;
         private String message;
-        private LocalDateTime timestamp;
+        private String timestamp;
         private String path;
 
-        public ErrorResponse(int status, String message, LocalDateTime timestamp, String path) {
+        public ErrorResponse(int status, String message, String timestamp, String path) {
             this.status = status;
             this.message = message;
             this.timestamp = timestamp;
@@ -142,7 +146,7 @@ public class GlobalExceptionHandler {
             return message;
         }
 
-        public LocalDateTime getTimestamp() {
+        public String getTimestamp() {
             return timestamp;
         }
         
@@ -154,7 +158,7 @@ public class GlobalExceptionHandler {
     public static class ValidationErrorResponse extends ErrorResponse {
         private Map<String, String> errors;
 
-        public ValidationErrorResponse(int status, String message, LocalDateTime timestamp, String path, Map<String, String> errors) {
+        public ValidationErrorResponse(int status, String message, String timestamp, String path, Map<String, String> errors) {
             super(status, message, timestamp, path);
             this.errors = errors;
         }
