@@ -16,7 +16,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        // Add metrics interceptor first to measure complete request time
+        // Add metrics interceptor to measure complete request time
         registry.addInterceptor(metricsInterceptor);
         
         // Then add activity logging interceptor

@@ -32,7 +32,20 @@ dependencies {
     implementation 'org.postgresql:postgresql'
     implementation 'org.flywaydb:flyway-core'
     implementation 'org.flywaydb:flyway-database-postgresql'
+    implementation 'com.zaxxer:HikariCP'
     
+    // Redis Cache
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.session:spring-session-data-redis'
+    implementation 'org.redisson:redisson:3.25.2'
+    
+    // Rate Limiting
+    implementation 'com.giffing.bucket4j.spring.boot.starter:bucket4j-spring-boot-starter:0.7.0'
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
+
+    // Jedis
+    implementation 'redis.clients:jedis:6.0.0'
+
     // JWT
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'

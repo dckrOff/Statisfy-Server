@@ -1,5 +1,22 @@
 # Statisfy Server Changelog
 
+## [0.8.0] 
+### Added
+- Redis интеграция для кэширования и управления сессиями
+- Connection pooling с использованием HikariCP
+- Асинхронная обработка тяжелых операций с TaskExecutor
+- Rate Limiting с использованием Bucket4j и Redis
+- Безопасные HTTP заголовки (Content-Security-Policy, X-Frame-Options и др.)
+- Расширенные настройки CORS
+- ETag поддержка и HTTP compression
+- Логирование медленных запросов и производительности
+- Оптимизация Hibernate с настройками кэширования и пакетной обработки
+
+### Changed
+- Обновлен docker-compose.yml для включения Redis
+- Улучшены метрики и мониторинг производительности
+- Реструктуризация настроек в application.yml
+
 ## [0.7.0] 
 ### Added
 - Подробная документация API (api-documentation.md)
@@ -9,7 +26,6 @@
 - AccessDeniedHandler и AuthenticationEntryPoint в SecurityConfig
 - Расширен белый список URL для публичного доступа
 - Добавлен путь к ресурсу в сообщения об ошибках
-
 
 ### Changed
 - Формат ответов об ошибках теперь содержит timestamp, status, error, message и path

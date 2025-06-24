@@ -1,0 +1,165 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:statisfy}
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:1234}
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      idle-timeout: 30000
+      connection-timeout: 20000
+  
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        generate_statistics: false
+        jdbc.batch_size: 50
+        order_inserts: true
+        order_updates: true
+  
+  # Redis Configuration
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      connect-timeout: 2000
+      timeout: 1000
+      client-type: jedis
+      database: 0
+      jedis:
+        pool:
+          max-active: 16
+          max-idle: 8
+          min-idle: 4
+          max-wait: 1000ms
+  
+  # Настройки кэширования
+  cache:
+    type: redis
+    redis:
+      time-to-live: 3600000
+      cache-null-values: false
+    cache-names:
+      - buckets
+      - facts
+      - statistics
+      - news
+      - users
+      - ai
+      - auth
+  
+  # Rate limiting configuration
+  rate-limiting:
+    capacity: 100
+    refill-tokens: 100
+    refill-duration: 3600
+
+# Отключаем расписания для сервисов, требующих API ключей, пока они не будут предоставлены
+news-api:
+  scheduler:
+    enabled: ${NEWS_API_SCHEDULER_ENABLED:false}
+
+scraping:
+  enabled: ${SCRAPING_ENABLED:true}
+  user-agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+  connection-timeout: 10000
+  read-timeout: 30000
+
+# Настройки безопасности для продакшена
+server:
+  compression:
+    enabled: true
+    mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json
+    min-response-size: 1024
+  http2:
+    enabled: true
+  tomcat:
+    max-threads: 200
+    accept-count: 100
+    max-connections: 8192
+    connection-timeout: 20000
+  undertow:
+    max-http-post-size: 2MB
+  error:
+    whitelabel:
+      enabled: false
+    include-stacktrace: never
+    include-message: never
+
+# Actuator configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,loggers,caches,env,configprops
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when_authorized
+      show-components: when_authorized
+      group:
+        readiness:
+          include: db,redis,diskSpace
+        liveness:
+          include: ping
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+      percentiles:
+        http.server.requests: 0.5, 0.9, 0.95, 0.99
+      sla:
+        http.server.requests: 50ms,100ms,200ms,500ms,1s
+    tags:
+      application: statisfy-server
+    enable:
+      jvm: true
+      process: true
+      system: true
+      tomcat: true
+  info:
+    env:
+      enabled: true
+    java:
+      enabled: true
+    os:
+      enabled: true
+    git:
+      enabled: true
+  health:
+    defaults:
+      enabled: true
+
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
+# Logging configuration
+logging:
+  level:
+    root: INFO
+    uz.dckroff.statisfy: INFO
+    org.springframework.web: INFO
+    org.hibernate: INFO
+  file:
+    path: /app/logs
+    name: ${logging.file.path}/statisfy.log
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  logback:
+    rollingpolicy:
+      max-file-size: 10MB
+      max-history: 30
+      total-size-cap: 1GB 
