@@ -13,10 +13,18 @@ server:
     min-spare-threads: 20
     max-connections: 10000
     connection-timeout: 5s
+  shutdown: graceful
 
 spring:
   application:
     name: statisfy
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+  mvc:
+    throw-exception-if-no-handler-found: true
+  web:
+    resources:
+      add-mappings: false
 
   # Jackson Configuration
   jackson:
@@ -162,7 +170,7 @@ firebase:
   config-file: ${FIREBASE_CONFIG_FILE:firebase-service-account.json}
 
 scraping:
-  enabled: false
+  enabled: true
   scheduler:
     cron: "0 0 */3 * * *" # Every 3 hours
   sites:

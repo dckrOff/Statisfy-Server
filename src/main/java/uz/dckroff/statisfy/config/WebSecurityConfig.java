@@ -4,6 +4,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import jakarta.servlet.FilterChain;
@@ -13,6 +20,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Configuration
+@EnableWebSecurity
 @RequiredArgsConstructor
 public class WebSecurityConfig {
 
@@ -33,6 +41,14 @@ public class WebSecurityConfig {
 
     @Value("${security.headers.referrer-policy:no-referrer}")
     private String referrerPolicy;
+
+    private static final String[] SWAGGER_WHITELIST = {
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html",
+            "/swagger-resources/**",
+            "/webjars/**"
+    };
 
     /**
      * Фильтр для добавления безопасных HTTP заголовков
@@ -74,5 +90,30 @@ public class WebSecurityConfig {
                 filterChain.doFilter(request, response);
             }
         };
+    }
+
+    @Bean
+    @Order(1)
+    public SecurityFilterChain swaggerSecurityFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .securityMatcher(SWAGGER_WHITELIST)
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(SWAGGER_WHITELIST).permitAll())
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .build();
+    }
+
+    @Bean
+    @Order(2)
+    public SecurityFilterChain actuatorSecurityFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .securityMatcher("/actuator/**")
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/actuator/health/**").permitAll()
+                        .requestMatchers("/actuator/**").hasRole("ADMIN"))
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .build();
     }
 } 

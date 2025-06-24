@@ -1,170 +1,139 @@
 package uz.dckroff.statisfy.exception;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.v3.oas.annotations.Hidden;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.NoHandlerFoundException;
+import uz.dckroff.statisfy.dto.StandardResponse;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
-
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException ex, WebRequest request) {
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.NOT_FOUND.value(),
-                ex.getMessage(),
-                LocalDateTime.now().format(FORMATTER),
-                request.getDescription(false)
-        );
-        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<StandardResponse<Void>> handleResourceNotFoundException(ResourceNotFoundException ex, HttpServletRequest request) {
+        log.error("Resource not found: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(StandardResponse.error(ex.getMessage(), HttpStatus.NOT_FOUND.value()));
     }
 
-    @ExceptionHandler(UserAlreadyExistsException.class)
-    public ResponseEntity<ErrorResponse> handleUserAlreadyExistsException(UserAlreadyExistsException ex, WebRequest request) {
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.CONFLICT.value(),
-                ex.getMessage(),
-                LocalDateTime.now().format(FORMATTER),
-                request.getDescription(false)
-        );
-        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
-    }
-
-    @ExceptionHandler(CategoryAlreadyExistsException.class)
-    public ResponseEntity<ErrorResponse> handleCategoryAlreadyExistsException(CategoryAlreadyExistsException ex, WebRequest request) {
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.CONFLICT.value(),
-                ex.getMessage(),
-                LocalDateTime.now().format(FORMATTER),
-                request.getDescription(false)
-        );
-        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
-    }
-
-    @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ErrorResponse> handleBadCredentialsException(BadCredentialsException ex, WebRequest request) {
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.UNAUTHORIZED.value(),
-                "Неверное имя пользователя или пароль",
-                LocalDateTime.now().format(FORMATTER),
-                request.getDescription(false)
-        );
-        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
-    }
-
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException ex, WebRequest request) {
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.FORBIDDEN.value(),
-                "Доступ запрещен: у вас недостаточно прав для выполнения этой операции",
-                LocalDateTime.now().format(FORMATTER),
-                request.getDescription(false)
-        );
-        return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
-    }
-
-    @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException ex, WebRequest request) {
-        String message = "Ошибка аутентификации";
-        if (ex instanceof InsufficientAuthenticationException) {
-            message = "Требуется аутентификация: предоставьте действительный JWT токен";
-        }
-        
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.UNAUTHORIZED.value(),
-                message,
-                LocalDateTime.now().format(FORMATTER),
-                request.getDescription(false)
-        );
-        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+    @ExceptionHandler(BadRequestException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<StandardResponse<Void>> handleBadRequestException(BadRequestException ex, HttpServletRequest request) {
+        log.error("Bad request: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(StandardResponse.error(ex.getMessage(), HttpStatus.BAD_REQUEST.value()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ValidationErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex, WebRequest request) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<StandardResponse<Map<String, String>>> handleValidationExceptions(MethodArgumentNotValidException ex, HttpServletRequest request) {
+        Map<String, String> errors = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage, (error1, error2) -> error1));
         
-        ValidationErrorResponse validationErrorResponse = new ValidationErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
-                "Ошибка валидации данных",
-                LocalDateTime.now().format(FORMATTER),
-                request.getDescription(false),
-                errors
-        );
+        log.error("Validation error: {}", errors);
         
-        return new ResponseEntity<>(validationErrorResponse, HttpStatus.BAD_REQUEST);
+        StandardResponse<Map<String, String>> response = StandardResponse.<Map<String, String>>builder()
+                .status("error")
+                .message("Validation failed")
+                .code(HttpStatus.BAD_REQUEST.value())
+                .data(errors)
+                .build();
+        
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<StandardResponse<Void>> handleConstraintViolationException(ConstraintViolationException ex, HttpServletRequest request) {
+        log.error("Constraint violation: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(StandardResponse.error("Validation error: " + ex.getMessage(), HttpStatus.BAD_REQUEST.value()));
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ResponseEntity<StandardResponse<Void>> handleAccessDeniedException(AccessDeniedException ex, HttpServletRequest request) {
+        log.error("Access denied: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(StandardResponse.error("Access denied: insufficient privileges", HttpStatus.FORBIDDEN.value()));
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ResponseEntity<StandardResponse<Void>> handleBadCredentialsException(BadCredentialsException ex, HttpServletRequest request) {
+        log.error("Bad credentials: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(StandardResponse.error("Invalid username or password", HttpStatus.UNAUTHORIZED.value()));
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ResponseEntity<StandardResponse<Void>> handleAuthenticationException(AuthenticationException ex, HttpServletRequest request) {
+        log.error("Authentication error: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(StandardResponse.error("Authentication failed: " + ex.getMessage(), HttpStatus.UNAUTHORIZED.value()));
+    }
+
+    @ExceptionHandler(NoHandlerFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<StandardResponse<Void>> handleNoHandlerFoundException(NoHandlerFoundException ex, HttpServletRequest request) {
+        log.error("No handler found: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(StandardResponse.error("Resource not found: " + ex.getRequestURL(), HttpStatus.NOT_FOUND.value()));
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<StandardResponse<Void>> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex, HttpServletRequest request) {
+        log.error("Message not readable: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(StandardResponse.error("Malformed JSON request", HttpStatus.BAD_REQUEST.value()));
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<StandardResponse<Void>> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex, HttpServletRequest request) {
+        log.error("Type mismatch: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(StandardResponse.error("Invalid parameter type: " + ex.getName(), HttpStatus.BAD_REQUEST.value()));
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<StandardResponse<Void>> handleMissingServletRequestParameterException(MissingServletRequestParameterException ex, HttpServletRequest request) {
+        log.error("Missing parameter: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(StandardResponse.error("Missing required parameter: " + ex.getParameterName(), HttpStatus.BAD_REQUEST.value()));
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGlobalException(Exception ex, WebRequest request) {
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "Произошла непредвиденная ошибка: " + ex.getMessage(),
-                LocalDateTime.now().format(FORMATTER),
-                request.getDescription(false)
-        );
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    public static class ErrorResponse {
-        private int status;
-        private String message;
-        private String timestamp;
-        private String path;
-
-        public ErrorResponse(int status, String message, String timestamp, String path) {
-            this.status = status;
-            this.message = message;
-            this.timestamp = timestamp;
-            this.path = path;
-        }
-
-        public int getStatus() {
-            return status;
-        }
-
-        public String getMessage() {
-            return message;
-        }
-
-        public String getTimestamp() {
-            return timestamp;
-        }
-        
-        public String getPath() {
-            return path;
-        }
-    }
-
-    public static class ValidationErrorResponse extends ErrorResponse {
-        private Map<String, String> errors;
-
-        public ValidationErrorResponse(int status, String message, String timestamp, String path, Map<String, String> errors) {
-            super(status, message, timestamp, path);
-            this.errors = errors;
-        }
-
-        public Map<String, String> getErrors() {
-            return errors;
-        }
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @Hidden
+    public ResponseEntity<StandardResponse<Void>> handleGenericException(Exception ex, HttpServletRequest request) {
+        log.error("Unhandled exception", ex);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(StandardResponse.error("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR.value()));
     }
 } 
