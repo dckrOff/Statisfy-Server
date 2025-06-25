@@ -1,7 +1,7 @@
 server:
   port: 8080
-  servlet:
-    context-path: /api
+  #  servlet:
+  #    context-path: /api
   compression:
     enabled: true
     mime-types: application/json,application/xml,text/html,text/xml,text/plain
@@ -31,7 +31,7 @@ spring:
     serialization:
       write-dates-as-timestamps: false
       fail-on-empty-beans: false
-    date-format: yyyy-MM-dd HH:mm:ss
+    date-format: yyyy-MM-dd'T'HH:mm:ss
     time-zone: UTC
     default-property-inclusion: non_null
     mapper:
@@ -42,7 +42,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/statisfy
     username: postgres
-    password: postgres
+    password: 1234
     driver-class-name: org.postgresql.Driver
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
@@ -57,7 +57,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: false
+    show-sql: true
     properties:
       hibernate:
         format_sql: true
@@ -147,12 +147,12 @@ management:
         enabled: true
 
 jwt:
-  secret: your-secret-key-here
+  secret: "F93sdf9j3r023r90wefjwef9w023rwejfw09"
   expiration: 86400000 # 24 hours
 
 # NewsAPI configuration
 news-api:
-  key: your-news-api-key
+  key: "8366fc3ce12040338505bd85c80a6c2f"
   base-url: https://newsapi.org/v2
   scheduler:
     enabled: true
@@ -161,31 +161,14 @@ news-api:
 # OpenAI API configuration
 openai:
   api:
-    key: your-openai-api-key
+    key: "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"
     model: gpt-3.5-turbo
     timeout: 60 # seconds
-    url: https://api.openai.com/v1
 
 firebase:
   enabled: ${FIREBASE_ENABLED:true}
-  config-file: firebase-service-account.json
-  database-url: https://your-project-id.firebaseio.com
+  config-file: ${FIREBASE_CONFIG_FILE:firebase-service-account.json}
 
-# Настройки для сбора новостей
-news:
-  api:
-    key: your-news-api-key
-    url: https://newsapi.org/v2
-    refresh-rate: 30 # минут
-  scraper:
-    kunuz:
-      url: https://kun.uz
-      enabled: true
-    gazetauz:
-      url: https://gazeta.uz
-      enabled: true
-
-# Настройки для скрапинга
 scraping:
   enabled: true
   scheduler:
@@ -231,67 +214,42 @@ security:
     x-xss-protection: "1; mode=block"
     referrer-policy: no-referrer 
 
-# Настройки для сборщика статистики
+# Настройки сбора статистики
 statistics-collector:
   enabled: true
-  schedule: "0 0 2 * * ?" # Каждый день в 2:00
   connection-timeout: 10000
   user-agent: "Statisfy-StatisticsCollector/1.0"
   sources:
-    worldbank:
-      url: https://api.worldbank.org/v2
+    - name: "worldbank"
+      url: "http://api.worldbank.org/v2"
+      category: "general"
       enabled: true
-      categories:
-        - population
-        - economy
-        - health
-        - education
-        - environment
-    openexchange:
-      url: https://openexchangerates.org/api
-      api-key: your-openexchange-api-key
+    - name: "openexchangerates"
+      url: "https://openexchangerates.org/api"
+      api-key: ${OPEN_EXCHANGE_RATES_API_KEY:your_key_here}
+      category: "economic"
       enabled: true
-      categories:
-        - currency
-        - economy
-    healthdata:
-      url: https://healthdata.gov/api/v1
-      enabled: true
-      categories:
-        - health
-        - demographics
 
-# Настройки для сборщика фактов
+# Настройки сбора фактов
 fact-collector:
   enabled: true
-  schedule: "0 0 1 * * ?" # Каждый день в 1:00
   connection-timeout: 10000
   user-agent: "Statisfy-FactCollector/1.0"
   max-facts-per-run: 20
   sources:
-    wikipedia:
-      url: https://en.wikipedia.org/api/rest_v1
+    - name: "wikipedia"
+      url: "https://en.wikipedia.org/api/rest_v1"
+      category: "general"
       enabled: true
-      categories:
-        - general
-        - science
-        - history
-    numbersapi:
-      url: http://numbersapi.com
+    - name: "numbersapi"
+      url: "http://numbersapi.com"
+      category: "math"
       enabled: true
-      categories:
-        - math
-        - trivia
-        - year
-    historyapi:
-      url: https://history.muffinlabs.com/date
+    - name: "historyapi"
+      url: "https://history.muffinlabs.com"
+      category: "history"
       enabled: true
-      categories:
-        - history
-        - events
-    spacenews:
-      url: https://api.spaceflightnewsapi.net/v3
-      enabled: true
-      categories:
-        - space
-        - science 
+    - name: "spacenews"
+      url: "https://api.spaceflightnewsapi.net/v3"
+      category: "science"
+      enabled: true 

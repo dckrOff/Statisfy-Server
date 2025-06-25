@@ -149,9 +149,9 @@ public class FactCollectorServiceImpl implements FactCollectorService {
                             String.class
                     );
                     
-                    if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                    if (response.getStatusCode() == HttpStatus.OK) {
                         String content = response.getBody();
-                        
+
                         // Создаем объект запроса для сохранения факта
                         FactRequest request = FactRequest.builder()
                                 .title("Факт о числе " + randomNumber)
@@ -160,12 +160,12 @@ public class FactCollectorServiceImpl implements FactCollectorService {
                                 .source("Numbers API")
                                 .isPublished(true)
                                 .build();
-                        
+
                         // Сохраняем факт
                         factService.createFact(request);
                         count.incrementAndGet();
                         log.info("Сохранен факт о числе {}: {}", randomNumber, content);
-                        
+
                         // Делаем небольшую паузу между запросами
                         Thread.sleep(500);
                     }
