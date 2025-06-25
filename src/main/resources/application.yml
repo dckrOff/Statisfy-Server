@@ -213,3 +213,43 @@ security:
     x-frame-options: DENY
     x-xss-protection: "1; mode=block"
     referrer-policy: no-referrer 
+
+# Настройки сбора статистики
+statistics-collector:
+  enabled: true
+  connection-timeout: 10000
+  user-agent: "Statisfy-StatisticsCollector/1.0"
+  sources:
+    - name: "worldbank"
+      url: "http://api.worldbank.org/v2"
+      category: "general"
+      enabled: true
+    - name: "openexchangerates"
+      url: "https://openexchangerates.org/api"
+      api-key: ${OPEN_EXCHANGE_RATES_API_KEY:your_key_here}
+      category: "economic"
+      enabled: true
+
+# Настройки сбора фактов
+fact-collector:
+  enabled: true
+  connection-timeout: 10000
+  user-agent: "Statisfy-FactCollector/1.0"
+  max-facts-per-run: 20
+  sources:
+    - name: "wikipedia"
+      url: "https://en.wikipedia.org/api/rest_v1"
+      category: "general"
+      enabled: true
+    - name: "numbersapi"
+      url: "http://numbersapi.com"
+      category: "math"
+      enabled: true
+    - name: "historyapi"
+      url: "https://history.muffinlabs.com"
+      category: "history"
+      enabled: true
+    - name: "spacenews"
+      url: "https://api.spaceflightnewsapi.net/v3"
+      category: "science"
+      enabled: true 
