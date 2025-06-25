@@ -3,26 +3,40 @@ package uz.dckroff.statisfy.config;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.Duration;
 
 /**
- * Конфигурация для RestTemplate, используемого для HTTP-запросов к внешним API
+ * Конфигурация RestTemplate для выполнения HTTP запросов к внешним API
  */
 @Configuration
 public class RestTemplateConfig {
 
     /**
-     * Создает и настраивает экземпляр RestTemplate
-     * @param builder Автоконфигурируемый билдер RestTemplate
-     * @return Настроенный экземпляр RestTemplate
+     * Создает настроенный экземпляр RestTemplate с таймаутами и обработкой ошибок
+     * @return настроенный RestTemplate
      */
     @Bean
-    public RestTemplate restTemplate(RestTemplateBuilder builder) {
-        return builder
-                .connectTimeout(Duration.ofSeconds(10))
-                .readTimeout(Duration.ofSeconds(30))
+    public RestTemplate restTemplate() {
+        return new RestTemplateBuilder()
+                .setConnectTimeout(Duration.ofSeconds(5))
+                .setReadTimeout(Duration.ofSeconds(10))
+                .requestFactory(this::clientHttpRequestFactory)
                 .build();
     }
-}
+
+    /**
+     * Создает фабрику HTTP запросов с настроенными параметрами
+     * @return настроенная фабрика HTTP запросов
+     */
+    private ClientHttpRequestFactory clientHttpRequestFactory() {
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(5000);
+        factory.setReadTimeout(10000);
+        factory.setBufferRequestBody(false);
+        return factory;
+    }
+} 

@@ -1,7 +1,7 @@
 server:
   port: 8080
-  #  servlet:
-  #    context-path: /api
+  servlet:
+    context-path: /api
   compression:
     enabled: true
     mime-types: application/json,application/xml,text/html,text/xml,text/plain
@@ -31,7 +31,7 @@ spring:
     serialization:
       write-dates-as-timestamps: false
       fail-on-empty-beans: false
-    date-format: yyyy-MM-dd'T'HH:mm:ss
+    date-format: yyyy-MM-dd HH:mm:ss
     time-zone: UTC
     default-property-inclusion: non_null
     mapper:
@@ -42,7 +42,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/statisfy
     username: postgres
-    password: 1234
+    password: postgres
     driver-class-name: org.postgresql.Driver
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
@@ -57,7 +57,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
@@ -147,12 +147,12 @@ management:
         enabled: true
 
 jwt:
-  secret: "F93sdf9j3r023r90wefjwef9w023rwejfw09"
+  secret: your-secret-key-here
   expiration: 86400000 # 24 hours
 
 # NewsAPI configuration
 news-api:
-  key: "8366fc3ce12040338505bd85c80a6c2f"
+  key: your-news-api-key
   base-url: https://newsapi.org/v2
   scheduler:
     enabled: true
@@ -161,13 +161,14 @@ news-api:
 # OpenAI API configuration
 openai:
   api:
-    key: "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"
+    key: your-openai-api-key
     model: gpt-3.5-turbo
     timeout: 60 # seconds
 
 firebase:
   enabled: ${FIREBASE_ENABLED:true}
-  config-file: ${FIREBASE_CONFIG_FILE:firebase-service-account.json}
+  config-file: firebase-service-account.json
+  database-url: https://your-project-id.firebaseio.com
 
 scraping:
   enabled: true
@@ -252,4 +253,85 @@ fact-collector:
     - name: "spacenews"
       url: "https://api.spaceflightnewsapi.net/v3"
       category: "science"
-      enabled: true 
+      enabled: true
+
+# Настройки для сбора новостей
+news:
+  api:
+    key: your-news-api-key
+    url: https://newsapi.org/v2
+    refresh-rate: 30 # минут
+  scraper:
+    kunuz:
+      url: https://kun.uz
+      enabled: true
+    gazetauz:
+      url: https://gazeta.uz
+      enabled: true
+
+# Настройки для OpenAI API
+openai:
+  api:
+    key: your-openai-api-key
+    url: https://api.openai.com/v1
+    model: gpt-3.5-turbo
+
+# Настройки для сборщика статистики
+statistics-collector:
+  enabled: true
+  schedule: "0 0 2 * * ?" # Каждый день в 2:00
+  sources:
+    worldbank:
+      url: https://api.worldbank.org/v2
+      enabled: true
+      categories:
+        - population
+        - economy
+        - health
+        - education
+        - environment
+    openexchange:
+      url: https://openexchangerates.org/api
+      api-key: your-openexchange-api-key
+      enabled: true
+      categories:
+        - currency
+        - economy
+    healthdata:
+      url: https://healthdata.gov/api/v1
+      enabled: true
+      categories:
+        - health
+        - demographics
+
+# Настройки для сборщика фактов
+fact-collector:
+  enabled: true
+  schedule: "0 0 1 * * ?" # Каждый день в 1:00
+  sources:
+    wikipedia:
+      url: https://en.wikipedia.org/api/rest_v1
+      enabled: true
+      categories:
+        - general
+        - science
+        - history
+    numbersapi:
+      url: http://numbersapi.com
+      enabled: true
+      categories:
+        - math
+        - trivia
+        - year
+    historyapi:
+      url: https://history.muffinlabs.com/date
+      enabled: true
+      categories:
+        - history
+        - events
+    spacenews:
+      url: https://api.spaceflightnewsapi.net/v3
+      enabled: true
+      categories:
+        - space
+        - science 

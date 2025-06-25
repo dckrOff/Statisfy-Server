@@ -16,7 +16,8 @@
 7. [Уведомления](#уведомления)
 8. [Предпочтения пользователей](#предпочтения-пользователей)
 9. [Административные API](#административные-api)
-10. [Статусные коды и форматы ответов](#статусные-коды-и-форматы-ответов)
+10. [API сбора данных](#api-сбора-данных)
+11. [Статусные коды и форматы ответов](#статусные-коды-и-форматы-ответов)
 
 ## Аутентификация
 
@@ -396,6 +397,69 @@ Authorization: Bearer {jwt_token}
 | 401  | Отсутствует токен аутентификации           | `{"status": 401, "error": "Unauthorized", "message": "Требуется аутентификация: предоставьте действительный JWT токен", "path": "/api/admin/users"}` |
 | 403  | Недостаточно прав (только для админов)     | `{"status": 403, "error": "Forbidden", "message": "У вас недостаточно прав для выполнения этой операции", "path": "/api/admin/users"}` |
 | 404  | Пользователь не найден                     | `{"status": 404, "error": "Not Found", "message": "Пользователь с ID 123 не найден", "path": "/api/admin/users/123/role"}` |
+
+## API сбора данных
+
+### Сбор статистики
+
+| Метод   | Эндпоинт                          | Описание                           | Требуемая роль |
+|---------|-----------------------------------|-----------------------------------|----------------|
+| POST    | /api/statistics-collector/run-all | Запуск сбора всех видов статистики | ADMIN          |
+| POST    | /api/statistics-collector/population | Сбор статистики о населении     | ADMIN          |
+| POST    | /api/statistics-collector/economic | Сбор экономической статистики     | ADMIN          |
+| POST    | /api/statistics-collector/health  | Сбор статистики о здравоохранении  | ADMIN          |
+| POST    | /api/statistics-collector/education | Сбор статистики об образовании   | ADMIN          |
+| POST    | /api/statistics-collector/environment | Сбор статистики об экологии    | ADMIN          |
+
+#### Пример ответа при сборе статистики
+
+```json
+{
+  "statisticsCollected": 25,
+  "source": "World Bank API",
+  "category": "Население",
+  "success": true,
+  "message": "Успешно собрано 25 записей о населении"
+}
+```
+
+#### Возможные ошибки при сборе статистики
+
+| Код  | Описание                                   | Пример ответа                                                |
+|------|--------------------------------------------|------------------------------------------------------------|
+| 401  | Отсутствует токен аутентификации           | `{"status": 401, "error": "Unauthorized", "message": "Требуется аутентификация: предоставьте действительный JWT токен", "path": "/api/statistics-collector/run-all"}` |
+| 403  | Недостаточно прав (только для админов)     | `{"status": 403, "error": "Forbidden", "message": "У вас недостаточно прав для выполнения этой операции", "path": "/api/statistics-collector/run-all"}` |
+| 500  | Ошибка при сборе данных                    | `{"status": 500, "error": "Internal Server Error", "message": "Ошибка при получении данных из API: Connection timeout", "path": "/api/statistics-collector/economic"}` |
+
+### Сбор фактов
+
+| Метод   | Эндпоинт                      | Описание                        | Требуемая роль |
+|---------|-------------------------------|--------------------------------|----------------|
+| POST    | /api/fact-collector/run-all   | Запуск сбора всех видов фактов  | ADMIN          |
+| POST    | /api/fact-collector/wikipedia | Сбор фактов из Wikipedia        | ADMIN          |
+| POST    | /api/fact-collector/numbers   | Сбор фактов о числах            | ADMIN          |
+| POST    | /api/fact-collector/historical| Сбор исторических фактов        | ADMIN          |
+| POST    | /api/fact-collector/science   | Сбор научных фактов             | ADMIN          |
+
+#### Пример ответа при сборе фактов
+
+```json
+{
+  "factsCollected": 10,
+  "source": "Wikipedia",
+  "category": "Общие знания",
+  "success": true,
+  "message": "Успешно собрано 10 фактов из Wikipedia"
+}
+```
+
+#### Возможные ошибки при сборе фактов
+
+| Код  | Описание                                   | Пример ответа                                                |
+|------|--------------------------------------------|------------------------------------------------------------|
+| 401  | Отсутствует токен аутентификации           | `{"status": 401, "error": "Unauthorized", "message": "Требуется аутентификация: предоставьте действительный JWT токен", "path": "/api/fact-collector/run-all"}` |
+| 403  | Недостаточно прав (только для админов)     | `{"status": 403, "error": "Forbidden", "message": "У вас недостаточно прав для выполнения этой операции", "path": "/api/fact-collector/run-all"}` |
+| 500  | Ошибка при сборе данных                    | `{"status": 500, "error": "Internal Server Error", "message": "Ошибка при получении данных из API: Connection refused", "path": "/api/fact-collector/wikipedia"}` |
 
 ## Статусные коды и форматы ответов
 
