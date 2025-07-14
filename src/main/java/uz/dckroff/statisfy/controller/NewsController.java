@@ -3,9 +3,11 @@ package uz.dckroff.statisfy.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import uz.dckroff.statisfy.dto.PagedResponse;
 import uz.dckroff.statisfy.dto.news.NewsResponse;
 import uz.dckroff.statisfy.service.NewsService;
 
@@ -19,11 +21,11 @@ public class NewsController {
     private final NewsService newsService;
 
     @GetMapping
-    public ResponseEntity<Page<NewsResponse>> getAllNews(
-            @PageableDefault(size = 10) Pageable pageable
-    ) {
-        return ResponseEntity.ok(newsService.getAllNews(pageable));
+    public PagedResponse<NewsResponse> getAllNews(Pageable pageable) {
+        return newsService.getAllNews(pageable);
     }
+
+
 
     @GetMapping("/{id}")
     public ResponseEntity<NewsResponse> getNewsById(@PathVariable Long id) {

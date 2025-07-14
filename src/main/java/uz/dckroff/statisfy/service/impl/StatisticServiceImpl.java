@@ -26,10 +26,13 @@ public class StatisticServiceImpl implements StatisticService {
     private final CategoryRepository categoryRepository;
 
     @Override
-    public Page<StatisticResponse> getAllStatistics(Pageable pageable) {
-        return statisticRepository.findAll(pageable)
-                .map(this::mapToStatisticResponse);
+    public List<StatisticResponse> getAllStatistics() {
+        return statisticRepository.findAll()
+                .stream()
+                .map(this::mapToStatisticResponse)
+                .collect(Collectors.toList());
     }
+
 
     @Override
     public Page<StatisticResponse> getStatisticsByCategory(Long categoryId, Pageable pageable) {

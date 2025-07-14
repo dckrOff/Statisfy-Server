@@ -37,9 +37,4 @@ public class StatisfyApplication {
     public static void main(String[] args) {
         SpringApplication.run(StatisfyApplication.class, args);
     }
-
-    @Bean
-    public Jackson2ObjectMapperBuilderCustomizer disableRequireHandlersForJava8Times() {
-        return builder -> builder.featuresToDisable(MapperFeature.REQUIRE_HANDLERS_FOR_JAVA8_TIMES);
-    }
 }

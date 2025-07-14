@@ -24,11 +24,10 @@ public class StatisticController {
     private final StatisticService statisticService;
 
     @GetMapping
-    public ResponseEntity<Page<StatisticResponse>> getAllStatistics(
-            @PageableDefault(size = 10) Pageable pageable
-    ) {
-        return ResponseEntity.ok(statisticService.getAllStatistics(pageable));
+    public ResponseEntity<List<StatisticResponse>> getAllStatistics() {
+        return ResponseEntity.ok(statisticService.getAllStatistics());
     }
+
 
     @GetMapping("/category/{categoryId}")
     public ResponseEntity<Page<StatisticResponse>> getStatisticsByCategory(

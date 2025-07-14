@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface StatisticService {
-    Page<StatisticResponse> getAllStatistics(Pageable pageable);
+    List<StatisticResponse> getAllStatistics();
     Page<StatisticResponse> getStatisticsByCategory(Long categoryId, Pageable pageable);
     StatisticResponse getStatisticById(Long id);
     StatisticResponse createStatistic(StatisticRequest request);

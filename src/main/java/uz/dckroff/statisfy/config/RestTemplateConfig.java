@@ -21,12 +21,9 @@ public class RestTemplateConfig {
      */
     @Bean
     public RestTemplate restTemplate() {
-        return new RestTemplateBuilder()
-                .connectTimeout(Duration.ofSeconds(5))
-                .readTimeout(Duration.ofSeconds(10))
-                .requestFactory(this::clientHttpRequestFactory)
-                .build();
+        return new RestTemplate(clientHttpRequestFactory());
     }
+
 
     /**
      * Создает фабрику HTTP запросов с настроенными параметрами
@@ -36,7 +33,6 @@ public class RestTemplateConfig {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
         factory.setConnectTimeout(5000);
         factory.setReadTimeout(10000);
-        factory.setBufferRequestBody(false);
         return factory;
     }
 } 

@@ -34,8 +34,6 @@ spring:
     date-format: yyyy-MM-dd'T'HH:mm:ss
     time-zone: UTC
     default-property-inclusion: non_null
-    mapper:
-      REQUIRE_HANDLERS_FOR_JAVA8_TIMES: false
     deserialization:
       fail-on-unknown-properties: false
 
@@ -161,7 +159,7 @@ news-api:
 # OpenAI API configuration
 openai:
   api:
-    key: "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"
+    key: "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"
     model: gpt-3.5-turbo
     timeout: 60 # seconds
 
@@ -236,6 +234,7 @@ fact-collector:
   connection-timeout: 10000
   user-agent: "Statisfy-FactCollector/1.0"
   max-facts-per-run: 20
+  openapi: 3.0.0
   sources:
     - name: "wikipedia"
       url: "https://en.wikipedia.org/api/rest_v1"

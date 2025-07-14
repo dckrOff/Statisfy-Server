@@ -7,6 +7,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import uz.dckroff.statisfy.dto.PagedResponse;
+import uz.dckroff.statisfy.dto.PaginationDto;
 import uz.dckroff.statisfy.dto.category.CategoryResponse;
 import uz.dckroff.statisfy.dto.news.NewsResponse;
 import uz.dckroff.statisfy.dto.newsapi.NewsApiResponse;
@@ -47,11 +49,20 @@ public class NewsServiceImpl implements NewsService {
     }
 
     @Override
-    @Cacheable(value = "newsCache", key = "'allNews' + #pageable.pageNumber + #pageable.pageSize")
-    public Page<NewsResponse> getAllNews(Pageable pageable) {
-        return newsRepository.findAll(pageable)
+    public PagedResponse<NewsResponse> getAllNews(Pageable pageable) {
+        Page<NewsResponse> page = newsRepository.findAll(pageable)
                 .map(this::mapToNewsResponse);
+
+        PaginationDto pagination = new PaginationDto(
+                page.getNumber(),
+                page.getSize(),
+                page.getTotalElements(),
+                page.getTotalPages()
+        );
+
+        return new PagedResponse<>(page.getContent(), pagination);
     }
+
 
     @Override
     @Cacheable(value = "newsCache", key = "'newsByCategory' + #categoryId + #pageable.pageNumber + #pageable.pageSize")
